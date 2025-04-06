@@ -1,0 +1,8 @@
+{
+    "build": {
+      "nixpacks": true
+    },
+    "deploy": {
+      "startCommand": "gunicorn app:app"
+    }
+  }
