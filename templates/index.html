@@ -1,0 +1,106 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+
+{% block title %}Food to Recipe Finder - Upload Ingredients{% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">Food to Recipe Finder</h1>
+    <p class="lead">Take a picture of ingredients you have, and we'll show you what you can make!</p>
+</div>
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                Upload an Image of Your Ingredients
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data" id="upload-form">
+                    <div class="upload-area" id="drop-area">
+                        <p>Drag and drop an image here, or click to select a file</p>
+                        <input type="file" name="image" id="image-input" class="d-none" accept=".jpg, .jpeg, .png">
+                        <button type="button" class="btn btn-primary" id="select-image-btn">Select Image</button>
+                        <div id="image-preview-container" class="mt-3 d-none">
+                            <img id="image-preview" class="preview-image">
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <button type="submit" class="btn btn-success btn-lg" id="submit-btn" disabled>Find Recipes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropArea = document.getElementById('drop-area');
+        const imageInput = document.getElementById('image-input');
+        const selectBtn = document.getElementById('select-image-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const imagePreview = document.getElementById('image-preview');
+        const previewContainer = document.getElementById('image-preview-container');
+
+        // Click the hidden file input when the button is clicked
+        selectBtn.addEventListener('click', function() {
+            imageInput.click();
+        });
+
+        // Handle the file selection
+        imageInput.addEventListener('change', handleFiles);
+
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        // Highlight drop area when dragging over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        // Handle dropped files
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function highlight() {
+            dropArea.classList.add('bg-light');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('bg-light');
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            imageInput.files = files;
+            handleFiles();
+        }
+
+        function handleFiles() {
+            const file = imageInput.files[0];
+            if (file) {
+                // Display image preview
+                previewContainer.classList.remove('d-none');
+                imagePreview.src = URL.createObjectURL(file);
+                
+                // Enable submit button
+                submitBtn.disabled = false;
+            }
+        }
+    });
+</script>
+{% endblock %}
